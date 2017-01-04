@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns="urn:jboss:module:1.3" name="org.apache.kafka">
+    <properties>
+        <property name="jboss.api" value="UNSUPPORTED"/>
+    </properties>
+    
+    <resources>
+        <artifact name="${org.apache.kafka:kafka-clients}"/>
+        <artifact name="${org.apache.kafka:kafka-tools}"/>
+        <artifact name="${org.apache.kafka:connect-api}"/>
+        <artifact name="${org.apache.kafka:connect-runtime}"/>
+        <artifact name="${org.apache.kafka:connect-json}"/>
+        <artifact name="${org.apache.kafka:connect-file}"/>
+        <artifact name="${org.apache.kafka:kafka-log4j-appender}"/>
+    </resources>
+
+    <dependencies>
+        <module name="javax.api" />
+        <module name="javax.resource.api"/>         
+        <module name="sun.jdk" optional="true"/>           
+        <module name="javax.xml.bind.api"/>
+        <module name="org.slf4j"/>
+        <module name="net.jpountz.lz4"/> <!-- kafka-clients -->
+        <module name="org.xerial.snappy"/> <!-- kafka-clients -->
+        <module name="com.fasterxml.jackson.core.jackson-databind"/> <!-- connect-json & kafka-tools -->
+        <module name="com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider"/> <!-- runtime -->
+        <module name="net.sourceforge.argparse4j"/> <!-- kafka-tools -->
+        <!-- 
+        <module name="org.reflections"/> 
+         -->
+    </dependencies>
+</module>

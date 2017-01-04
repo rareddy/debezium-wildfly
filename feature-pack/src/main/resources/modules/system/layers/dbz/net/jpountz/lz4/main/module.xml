@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns="urn:jboss:module:1.3" name="net.jpountz.lz4">
+    <properties>
+        <property name="jboss.api" value="UNSUPPORTED"/>
+    </properties>
+    
+    <resources>
+        <artifact name="${net.jpountz.lz4:lz4}"/>
+    </resources>
+
+    <dependencies>
+        <module name="javax.api" />
+    </dependencies>
+</module>
