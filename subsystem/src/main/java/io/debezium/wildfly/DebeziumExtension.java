@@ -43,9 +43,7 @@ public class DebeziumExtension implements Extension {
     @Override
     public void initialize(ExtensionContext context) {
         final SubsystemRegistration subsystem = context.registerSubsystem(DEBEZIUM_SUBSYSTEM, DEBEZIUM_VERSION);
-        
         subsystem.registerXMLElementWriter(SubsystemParser.INSTANCE);
-
         subsystem.registerSubsystemModel(new SubsytemResourceDefinition(context.getProcessType().isServer()));
     }
 

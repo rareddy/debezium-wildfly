@@ -26,7 +26,7 @@
         <version.org.wildfly>10.0.0.Final</version.org.wildfly>
         <version.org.wildfly.core>2.0.10.Final</version.org.wildfly.core>
         <version.org.wildfly.arquillian>1.0.2.Final</version.org.wildfly.arquillian>
-        <version.debezium>0.3.6</version.debezium>
+        <version.debezium>0.4.0-SNAPSHOT</version.debezium>
     </properties>
     <scm>
         <connection>scm:git:git://github.com/teiid/teiid.git</connection>

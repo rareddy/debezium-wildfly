@@ -19,17 +19,36 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301 USA.
  */
+
 package io.debezium.wildfly;
 
-import org.jboss.msc.service.ServiceName;
+import org.jboss.msc.service.Service;
+import org.jboss.msc.service.StartContext;
+import org.jboss.msc.service.StartException;
+import org.jboss.msc.service.StopContext;
 
-class ServiceNames {
-    public static ServiceName ENGINE = ServiceName.JBOSS.append("debezium", "engine"); //$NON-NLS-1$ //$NON-NLS-2$
-    public static ServiceName CONNECTOR_BASE = ServiceName.JBOSS.append("debezium", "connector");//$NON-NLS-1$ //$NON-NLS-2$
-    public static ServiceName THREAD_POOL_SERVICE = ServiceName.JBOSS.append("debezium","async-threads"); //$NON-NLS-1$ //$NON-NLS-2$
-    public static ServiceName EVENTS_SERVICE = ServiceName.JBOSS.append("debezium","events"); //$NON-NLS-1$ //$NON-NLS-2$
+import io.debezium.consumer.EventQueue;
 
-    public static ServiceName connectorServiceName(String name) {
-        return ServiceName.of(CONNECTOR_BASE, name);
+/**
+ * Single service to funnel all the events from various connectors in Debezium
+ * TODO: need to bound this somehow??
+ */
+class EventsFunnelService implements Service<EventQueue> {
+
+    private EventQueue events;
+    
+    @Override
+    public EventQueue getValue() throws IllegalStateException, IllegalArgumentException {
+        return events;
+    }
+
+    @Override
+    public void start(StartContext context) throws StartException {
+        this.events = new EventQueue();
+    }
+
+    @Override
+    public void stop(StopContext context) {
+        this.events = null;
     }
 }

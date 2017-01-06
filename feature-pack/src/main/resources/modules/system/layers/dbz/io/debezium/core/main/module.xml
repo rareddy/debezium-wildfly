@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns="urn:jboss:module:1.3" name="io.debezium.core">
+    <properties>
+        <property name="jboss.api" value="UNSUPPORTED"/>
+    </properties>
+    
+    <resources>
+        <artifact name="${io.debezium:debezium-embedded}"/>
+        <artifact name="${io.debezium:debezium-core}"/>
+    </resources>
+
+    <dependencies>
+        <module name="javax.api" />
+        <module name="javax.resource.api"/>         
+        <module name="sun.jdk" optional="true"/>           
+        <module name="javax.xml.bind.api"/>
+        <module name="org.slf4j"/>
+        <module name="org.apache.kafka" export="true"/>
+        <module name="com.fasterxml.jackson.core.jackson-core"/>
+    </dependencies>
+</module>

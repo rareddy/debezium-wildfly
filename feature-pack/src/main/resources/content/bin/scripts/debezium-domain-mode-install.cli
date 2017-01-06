@@ -1,7 +1,6 @@
 connect
-/extension=io.debezium:add(module=io.debezium.subsytem)
+/extension=io.debezium.subsystem:add(module=io.debezium.subsytem)
 
 /profile=ha/subsystem=debezium:add()
-
 
 /:reload

@@ -22,24 +22,26 @@
 
 package io.debezium.wildfly;
 
+import static io.debezium.wildfly.Constants.ASYNC_THREAD_POOL_ELEMENT;
+import static io.debezium.wildfly.Constants.THREAD_COUNT_ATTRIBUTE;
+import static io.debezium.wildfly.Constants.asInt;
+import static io.debezium.wildfly.Constants.isDefined;
+
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.dmr.ModelNode;
-import org.jboss.modules.Module;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceTarget;
-
-import static io.debezium.wildfly.Constants.*;
 
 class DebeziumAdd extends AbstractAddStepHandler {
     
     public static DebeziumAdd INSTANCE = new DebeziumAdd(); 
 
     static SimpleAttributeDefinition[] ATTRIBUTES = {
-    		Constants.THREAD_COUNT_ATTRIBUTE
+            Constants.THREAD_COUNT_ATTRIBUTE
     };
     
     @Override
@@ -62,36 +64,24 @@ class DebeziumAdd extends AbstractAddStepHandler {
     }
     
     @Override
-    protected void performRuntime(final OperationContext context,
-            final ModelNode operation, final ModelNode model)
+    protected void performRuntime(final OperationContext context, final ModelNode operation, final ModelNode model)
             throws OperationFailedException {
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        try {
-            try {
-                classloader = Module.getCallerModule().getClassLoader();
-            } catch(Throwable t) {
-                //ignore..
-            }
-            Thread.currentThread().setContextClassLoader(classloader);
-            initilaizeDebezium(context, operation);
-        } finally {
-            Thread.currentThread().setContextClassLoader(classloader);
-        }
-    }
-
-    private void initilaizeDebezium(final OperationContext context,
-            final ModelNode operation) throws OperationFailedException {
-        ServiceTarget target = context.getServiceTarget();
         
-		int maxThreads = 10;
+        ServiceTarget target = context.getServiceTarget();
+
+        int maxThreads = 10;
         if (isDefined(ASYNC_THREAD_POOL_ELEMENT, operation, context)) {
             if(asInt(THREAD_COUNT_ATTRIBUTE, operation, context) != null) {
                 maxThreads = asInt(THREAD_COUNT_ATTRIBUTE, operation, context);
             }
         }
         
-        ThreadExecutorService service = new ThreadExecutorService(maxThreads);
-        final ServiceBuilder<?> serviceBuilder = target.addService(ServiceNames.THREAD_POOL_SERVICE, service);
+        ThreadExecutorService executorService = new ThreadExecutorService(maxThreads);
+        ServiceBuilder<?> serviceBuilder = target.addService(ServiceNames.THREAD_POOL_SERVICE, executorService);
+        serviceBuilder.install();
+        
+        EventsFunnelService eventsService = new EventsFunnelService();
+        serviceBuilder = target.addService(ServiceNames.EVENTS_SERVICE, eventsService);
         serviceBuilder.install();
     }
 

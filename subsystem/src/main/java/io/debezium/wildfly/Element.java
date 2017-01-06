@@ -58,7 +58,7 @@ enum Element {
     }
     
     public String getXmlName() {
-    	return this.xmlName;
+        return this.xmlName;
     }
 
     private static final Map<String, Element> MAP;

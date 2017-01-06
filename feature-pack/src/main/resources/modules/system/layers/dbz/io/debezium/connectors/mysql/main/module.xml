@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module xmlns="urn:jboss:module:1.3" name="io.debezium.embedded">
+<module xmlns="urn:jboss:module:1.3" name="io.debezium.connectors.mysql">
     <properties>
         <property name="jboss.api" value="UNSUPPORTED"/>
     </properties>
     
     <resources>
-        <artifact name="${io.debezium:debezium-embedded}"/>
-        <artifact name="${io.debezium:debezium-core}"/>
+        <artifact name="${io.debezium:debezium-connector-mysql}"/>
     </resources>
 
     <dependencies>
@@ -16,5 +15,7 @@
         <module name="javax.xml.bind.api"/>
         <module name="org.slf4j"/>
         <module name="org.apache.kafka"/>
+        <module name="io.debezium.core"/>
+        <module name="com.mysql"/>
     </dependencies>
 </module>

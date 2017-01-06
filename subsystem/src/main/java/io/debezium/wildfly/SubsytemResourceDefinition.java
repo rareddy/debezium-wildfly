@@ -49,9 +49,9 @@ class SubsytemResourceDefinition extends SimpleResourceDefinition {
 
     @Override
     public void registerAttributes(ManagementResourceRegistration resourceRegistration) {
-		for (int i = 0; i < DebeziumAdd.ATTRIBUTES.length; i++) {
-			resourceRegistration.registerReadWriteAttribute(DebeziumAdd.ATTRIBUTES[i], null, new AttributeWrite(DebeziumAdd.ATTRIBUTES[i]));
-		}    	
+        for (int i = 0; i < DebeziumAdd.ATTRIBUTES.length; i++) {
+            resourceRegistration.registerReadWriteAttribute(DebeziumAdd.ATTRIBUTES[i], null, new AttributeWrite(DebeziumAdd.ATTRIBUTES[i]));
+        }        
     }
     
     @Override
@@ -61,21 +61,21 @@ class SubsytemResourceDefinition extends SimpleResourceDefinition {
  
     public static class AttributeWrite extends AbstractWriteAttributeHandler<Void> {
 
-    	public AttributeWrite(AttributeDefinition... attr) {
-    		super(attr);
-    	}
+        public AttributeWrite(AttributeDefinition... attr) {
+            super(attr);
+        }
 
-    	@Override
-    	protected boolean applyUpdateToRuntime(OperationContext context,ModelNode operation,String attributeName,ModelNode resolvedValue,
-    			ModelNode currentValue, org.jboss.as.controller.AbstractWriteAttributeHandler.HandbackHolder<Void> handbackHolder)
-    			throws OperationFailedException {
-    		return true;
-    	}
+        @Override
+        protected boolean applyUpdateToRuntime(OperationContext context,ModelNode operation,String attributeName,ModelNode resolvedValue,
+                ModelNode currentValue, org.jboss.as.controller.AbstractWriteAttributeHandler.HandbackHolder<Void> handbackHolder)
+                throws OperationFailedException {
+            return true;
+        }
 
-    	@Override
-    	protected void revertUpdateToRuntime(OperationContext context, ModelNode operation, String attributeName,
-    			ModelNode valueToRestore, ModelNode valueToRevert, Void handback)
-    			throws OperationFailedException {
-    	}
+        @Override
+        protected void revertUpdateToRuntime(OperationContext context, ModelNode operation, String attributeName,
+                ModelNode valueToRestore, ModelNode valueToRevert, Void handback)
+                throws OperationFailedException {
+        }
     }    
 }

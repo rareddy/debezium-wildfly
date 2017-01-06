@@ -19,17 +19,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301 USA.
  */
-package io.debezium.wildfly;
+package io.debezium.consumer;
 
-import org.jboss.msc.service.ServiceName;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
-class ServiceNames {
-    public static ServiceName ENGINE = ServiceName.JBOSS.append("debezium", "engine"); //$NON-NLS-1$ //$NON-NLS-2$
-    public static ServiceName CONNECTOR_BASE = ServiceName.JBOSS.append("debezium", "connector");//$NON-NLS-1$ //$NON-NLS-2$
-    public static ServiceName THREAD_POOL_SERVICE = ServiceName.JBOSS.append("debezium","async-threads"); //$NON-NLS-1$ //$NON-NLS-2$
-    public static ServiceName EVENTS_SERVICE = ServiceName.JBOSS.append("debezium","events"); //$NON-NLS-1$ //$NON-NLS-2$
+import org.apache.kafka.connect.source.SourceRecord;
 
-    public static ServiceName connectorServiceName(String name) {
-        return ServiceName.of(CONNECTOR_BASE, name);
-    }
+@SuppressWarnings("serial")
+public class EventQueue extends ConcurrentLinkedDeque<SourceRecord> {
+	// marker interface for the service injection.
 }

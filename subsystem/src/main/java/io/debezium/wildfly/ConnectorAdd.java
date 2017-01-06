@@ -22,10 +22,9 @@
 package io.debezium.wildfly;
 
 import static io.debezium.wildfly.Constants.*;
-import static io.debezium.wildfly.Constants.asString;
-import static io.debezium.wildfly.Constants.isDefined;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import org.jboss.as.controller.*;
@@ -38,13 +37,15 @@ import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceTarget;
 
+import io.debezium.consumer.EventQueue;
+
 class ConnectorAdd extends AbstractAddStepHandler {
     public static ConnectorAdd INSTANCE = new ConnectorAdd();
     
     static AttributeDefinition[] ATTRIBUTES = {
-    		Constants.CONNECTOR_MODULE_ATTRIBUTE,
-    		Constants.CONNECTOR_SLOT_ATTRIBUTE,
-    		Constants.CONNECTOR_CONFIGURATION
+            Constants.CONNECTOR_MODULE_ATTRIBUTE,
+            Constants.CONNECTOR_SLOT_ATTRIBUTE,
+            Constants.CONNECTOR_CONFIGURATION
     };    
     
     @Override
@@ -72,7 +73,7 @@ class ConnectorAdd extends AbstractAddStepHandler {
         String slot = null;
         if (isDefined(CONNECTOR_SLOT_ATTRIBUTE, operation, context)) {
             slot = asString(CONNECTOR_SLOT_ATTRIBUTE, operation, context);
-        }        
+        }
         
         final ServiceTarget target = context.getServiceTarget();
 
@@ -92,9 +93,15 @@ class ConnectorAdd extends AbstractAddStepHandler {
             }
         }
         
-		ConnectorService service = new ConnectorService(classloader);
-		ServiceBuilder<Void> builder = target.addService(ServiceNames.connectorServiceName(connectorName), service);
-		builder.addDependency(ServiceNames.THREAD_POOL_SERVICE, Executor.class, service.executorInjector);
-		builder.setInitialMode(ServiceController.Mode.ACTIVE).install();
+        Map<String, String> properties = null;
+        if (isDefined(CONNECTOR_CONFIGURATION, operation, context)) {
+            properties = asProperties(CONNECTOR_CONFIGURATION, operation, context);
+        }          
+        
+        ConnectorService service = new ConnectorService(connectorName, classloader, properties);
+        ServiceBuilder<Void> builder = target.addService(ServiceNames.connectorServiceName(connectorName), service);
+        builder.addDependency(ServiceNames.THREAD_POOL_SERVICE, Executor.class, service.executorInjector);
+        builder.addDependency(ServiceNames.EVENTS_SERVICE, EventQueue.class, service.eventsInjector);
+        builder.setInitialMode(ServiceController.Mode.ACTIVE).install();
     }    
 }
