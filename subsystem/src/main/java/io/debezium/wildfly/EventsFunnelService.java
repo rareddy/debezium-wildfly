@@ -31,7 +31,7 @@ import io.debezium.consumer.EventQueue;
 
 /**
  * Single service to funnel all the events from various connectors in Debezium
- * TODO: need to bound this somehow??
+ * This will be bounded queue, upon reaching the max, then it block items to be removed
  */
 class EventsFunnelService implements Service<EventQueue> {
 
@@ -44,7 +44,8 @@ class EventsFunnelService implements Service<EventQueue> {
 
     @Override
     public void start(StartContext context) throws StartException {
-        this.events = new EventQueue();
+        // TODO: queue depth needs to be configurable
+        this.events = new EventQueue(1000);
     }
 
     @Override

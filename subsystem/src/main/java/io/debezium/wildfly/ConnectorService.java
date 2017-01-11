@@ -69,12 +69,26 @@ class ConnectorService implements Service<Void> {
         Configuration config = b.build();
         
         Consumer<SourceRecord> c = new Consumer<SourceRecord>() {
-            public void accept(SourceRecord record) {
-                eventsInjector.getValue().addLast(record);    
+            public void accept(SourceRecord record) {                
+                EventQueue queue = eventsInjector.getValue();
+                // the below call will block until the record is accepted, not good with
+                // multi-thread environments, but here we are dealing single thread. alternative is coming up
+                // with whole durable persistent mechanism for events. 
+                while(true) {
+                    try {
+                        if (queue.offerLast(record, 1000, TimeUnit.MILLISECONDS)) {
+                            logger.trace("Received event from topic = "+record.topic());
+                            break;
+                        }
+                    } catch (InterruptedException e) {
+                        logger.error(e.getMessage(), e);
+                        engine.stop();
+                    }
+                }
             }
         };
         
-        String jdbcDriver = properties.get("jdbc.driver");
+        String jdbcDriver = properties.get("database.jdbc.driver");
         if ( jdbcDriver != null) {
             try {
                 @SuppressWarnings("unchecked")

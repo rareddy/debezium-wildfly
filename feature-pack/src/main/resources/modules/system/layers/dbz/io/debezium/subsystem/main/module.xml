@@ -22,6 +22,8 @@
         <module name="org.jboss.as.naming" />
         <module name="javax.xml.bind.api" />
         <module name="io.debezium.core" />
+        <module name="org.apache.kafka.connect-json" />
+        <module name="org.apache.kafka.connect-api" />        
         <module name="org.slf4j"/>
     </dependencies>
 </module>

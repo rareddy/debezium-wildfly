@@ -15,7 +15,11 @@
         <module name="sun.jdk" optional="true"/>           
         <module name="javax.xml.bind.api"/>
         <module name="org.slf4j"/>
-        <module name="org.apache.kafka" export="true"/>
+        <module name="org.apache.kafka.connect-api"/>
+        <module name="org.apache.kafka.kafka-clients"/>
+        <module name="org.apache.kafka.connect-runtime"/>
+        <module name="org.apache.kafka.connect-json"/>
+        <module name="org.apache.kafka.connect-file"/>
         <module name="com.fasterxml.jackson.core.jackson-core"/>
     </dependencies>
 </module>
