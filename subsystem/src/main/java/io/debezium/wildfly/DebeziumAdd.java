@@ -16,9 +16,12 @@ import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.registry.Resource;
+import org.jboss.as.controller.services.path.RelativePathService;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceBuilder;
+import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceTarget;
+import org.wildfly.clustering.singleton.SingletonPolicy;
 
 class DebeziumAdd extends AbstractAddStepHandler {
     
@@ -60,13 +63,18 @@ class DebeziumAdd extends AbstractAddStepHandler {
             }
         }
         
-        ThreadExecutorService executorService = new ThreadExecutorService(maxThreads);
-        ServiceBuilder<?> serviceBuilder = target.addService(ServiceNames.THREAD_POOL_SERVICE, executorService);
-        serviceBuilder.install();
-        
-        EventsFunnelService eventsService = new EventsFunnelService();
-        serviceBuilder = target.addService(ServiceNames.EVENTS_SERVICE, eventsService);
-        serviceBuilder.install();
-    }
+        RelativePathService.addService(ServiceNames.PATH_SERVICE, "debezium", "jboss.server.data.dir", target); //$NON-NLS-1$ //$NON-NLS-2$        
+        try {
+            ThreadExecutorService executorService = new ThreadExecutorService(maxThreads);
+            ServiceBuilder<?> executorServiceBuilder = target.addService(ServiceNames.THREAD_POOL_SERVICE, executorService);
+            executorServiceBuilder.install();
 
+            SingletonPolicy policy = (SingletonPolicy) context.getServiceRegistry(true).getRequiredService(ServiceName.parse(SingletonPolicy.CAPABILITY_NAME)).awaitValue();            
+            EventsAggregatorService eventsService = new EventsAggregatorService();
+            ServiceBuilder<EventQueue> eventsBuilder = policy.createSingletonServiceBuilder(ServiceNames.EVENTS_SERVICE, eventsService).build(target);     
+            eventsBuilder.install();
+        } catch (InterruptedException e) {
+            throw new OperationFailedException(e);
+        } 
+    }
 }

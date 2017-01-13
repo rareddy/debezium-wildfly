@@ -4,8 +4,7 @@
         <property name="jboss.api" value="UNSUPPORTED"/>
     </properties>
     
-    <resources>
-        <artifact name="${com.github.shyiko:mysql-binlog-connector-java}"/>
+    <resources>        
         <artifact name="${mysql:mysql-connector-java}"/>
     </resources>
 

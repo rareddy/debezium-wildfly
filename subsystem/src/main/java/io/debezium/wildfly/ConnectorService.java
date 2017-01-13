@@ -24,22 +24,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.debezium.config.Configuration;
-import io.debezium.consumer.EventQueue;
 import io.debezium.embedded.EmbeddedEngine;
 
-class ConnectorService implements Service<Void> {
+class ConnectorService implements Service<EventQueue> {
     private final static Logger logger = LoggerFactory.getLogger(ConnectorService.class);
     private final String name;
+    private final String connectorClass;
     private final ClassLoader classLoader;
     private final Map<String, String> properties;
     protected final InjectedValue<Executor> executorInjector = new InjectedValue<Executor>();
     protected final InjectedValue<EventQueue> eventsInjector = new InjectedValue<EventQueue>();
+    protected InjectedValue<String> pathInjector = new InjectedValue<String>();
     private EmbeddedEngine engine;
     
-    ConnectorService(String name, ClassLoader classLoader, Map<String, String> properties){
+    ConnectorService(String name, String connectorClass, ClassLoader classLoader, Map<String, String> properties){
         this.name = name;
+        this.connectorClass = connectorClass;
         this.classLoader = classLoader;
         this.properties = properties;
+    }
+    
+    private String getProperty(String key, String defaultValue) {
+        String value = this.properties.get(key);
+        if (value != null && !value.trim().isEmpty()) {
+            return value;
+        }
+        return defaultValue;
     }
     
     @Override
@@ -50,6 +60,13 @@ class ConnectorService implements Service<Void> {
                 b.with(key, this.properties.get(key));
             }
         }
+        // these properties must be generic to the all the connectors.
+        b.with(EmbeddedEngine.ENGINE_NAME.name(), this.name);
+        b.with(EmbeddedEngine.CONNECTOR_CLASS.name(), this.connectorClass);
+        b.with(EmbeddedEngine.OFFSET_STORAGE_FILE_FILENAME.name(),
+                getProperty(EmbeddedEngine.OFFSET_STORAGE_FILE_FILENAME.name(),
+                        pathInjector.getValue() + "/" + this.name + "-offset.dat"));
+
         Configuration config = b.build();
         
         Consumer<SourceRecord> c = new Consumer<SourceRecord>() {
@@ -107,7 +124,7 @@ class ConnectorService implements Service<Void> {
     }
 
     @Override
-    public Void getValue() throws IllegalStateException, IllegalArgumentException {
+    public EventQueue getValue() throws IllegalStateException, IllegalArgumentException {
         return null;
     }
 }

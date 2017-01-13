@@ -1,6 +1,11 @@
 connect
-/extension=io.debezium.subsystem:add(module=io.debezium.subsytem)
 
+/extension=org.wildfly.extension.clustering.singleton:add(module=org.wildfly.extension.clustering.singleton)
+/subsystem=singleton:add
+/subsystem=singleton/singleton-policy=debezium:add(cache-container=server)
+/subsystem=singleton/singleton-policy=debezium/election-policy=simple:list-add(name=name-preferences, value=master)
+
+/extension=io.debezium.subsystem:add(module=io.debezium.subsytem)
 /subsystem=debezium:add()
 
 /:reload

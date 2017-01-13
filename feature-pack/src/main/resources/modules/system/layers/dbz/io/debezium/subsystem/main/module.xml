@@ -20,6 +20,8 @@
         <module name="org.jboss.as.controller" />
         <module name="org.jboss.staxmapper" />
         <module name="org.jboss.as.naming" />
+        <module name="org.wildfly.clustering.service"/>
+        <module name="org.wildfly.clustering.singleton"/>         
         <module name="javax.xml.bind.api" />
         <module name="io.debezium.core" />
         <module name="org.apache.kafka.connect-json" />

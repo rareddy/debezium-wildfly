@@ -13,6 +13,9 @@ import org.jboss.as.controller.descriptions.ResourceDescriptionResolver;
 import org.jboss.as.controller.descriptions.StandardResourceDescriptionResolver;
 import org.jboss.as.controller.parsing.ExtensionParsingContext;
 
+/**
+ * Debezium Subsystem extension class for WildFly
+ */
 public class DebeziumExtension implements Extension {
         
     public static final String DEBEZIUM_SUBSYSTEM = "debezium"; //$NON-NLS-1$

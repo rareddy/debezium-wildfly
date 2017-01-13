@@ -12,6 +12,7 @@ class ServiceNames {
     public static ServiceName CONNECTOR_BASE = ServiceName.JBOSS.append("debezium", "connector");//$NON-NLS-1$ //$NON-NLS-2$
     public static ServiceName THREAD_POOL_SERVICE = ServiceName.JBOSS.append("debezium","async-threads"); //$NON-NLS-1$ //$NON-NLS-2$
     public static ServiceName EVENTS_SERVICE = ServiceName.JBOSS.append("debezium","events"); //$NON-NLS-1$ //$NON-NLS-2$
+    public static ServiceName PATH_SERVICE = ServiceName.JBOSS.append("debezium","data-directory-path"); //$NON-NLS-1$ //$NON-NLS-2$
 
     public static ServiceName connectorServiceName(String name) {
         return ServiceName.of(CONNECTOR_BASE, name);

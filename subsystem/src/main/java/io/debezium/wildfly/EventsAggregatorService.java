@@ -11,13 +11,11 @@ import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 
-import io.debezium.consumer.EventQueue;
-
 /**
- * Single service to funnel all the events from various connectors in Debezium
+ * Single service to aggregate all the events from various connectors in Debezium
  * This will be bounded queue, upon reaching the max, then it block items to be removed
  */
-class EventsFunnelService implements Service<EventQueue> {
+class EventsAggregatorService implements Service<EventQueue> {
 
     private EventQueue events;
     
