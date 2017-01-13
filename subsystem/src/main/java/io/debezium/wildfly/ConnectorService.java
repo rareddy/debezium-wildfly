@@ -6,9 +6,7 @@
 
 package io.debezium.wildfly;
 
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.io.File;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -57,10 +55,16 @@ class ConnectorService implements Service<EventQueue> {
         Configuration.Builder b = Configuration.create();
         if (this.properties != null && !this.properties.isEmpty()) {
             for (String key : this.properties.keySet()) {
-                b.with(key, this.properties.get(key));
+                // value substitute from module based properties
+                String value = this.properties.get(key);
+                value = value.replace("${jboss.node.name}", System.getProperty("jboss.node.name"));
+                value = value.replace("${jboss.server.data.dir}", pathInjector.getValue());
+                value = value.replace("${connector-name}", this.name);
+                b.with(key, value);
             }
         }
         // these properties must be generic to the all the connectors.
+        b.with(EmbeddedEngine.ENGINE_NAME.name(), this.name);
         b.with(EmbeddedEngine.ENGINE_NAME.name(), this.name);
         b.with(EmbeddedEngine.CONNECTOR_CLASS.name(), this.connectorClass);
         b.with(EmbeddedEngine.OFFSET_STORAGE_FILE_FILENAME.name(),
@@ -89,15 +93,9 @@ class ConnectorService implements Service<EventQueue> {
             }
         };
         
-        String jdbcDriver = properties.get("database.jdbc.driver");
-        if ( jdbcDriver != null) {
-            try {
-                @SuppressWarnings("unchecked")
-                Class<Driver> driver = (Class<Driver>) Class.forName(jdbcDriver, false, this.classLoader);
-                DriverManager.registerDriver(driver.newInstance());
-            } catch (InstantiationException | IllegalAccessException | SQLException | ClassNotFoundException e) {
-                logger.error("jdbc driver {} not found in classpath ", jdbcDriver);
-            }
+        File dataDirectory = new File(pathInjector.getValue());
+        if (!dataDirectory.exists()) {
+            dataDirectory.mkdirs();
         }
         
         this.engine = EmbeddedEngine.create()

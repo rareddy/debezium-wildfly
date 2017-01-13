@@ -4,8 +4,11 @@
         <property name="jboss.api" value="UNSUPPORTED"/>
         <!-- These properties are default to be used for all MySQL WildFly connectors -->
         <property name="connector.class" value="io.debezium.connector.mysql.MySqlConnector"/>
+        <property name="database.server.name" value="${jboss.node.name}.${connector-name}"/>
         <property name="database.history" value="io.debezium.relational.history.FileDatabaseHistory"/>
+        <property name="database.history.file.filename" value="${jboss.server.data.dir}/${connector-name}-dbhistory.dat"/>
     </properties>
+    
     
     <resources>
         <artifact name="${io.debezium:debezium-connector-mysql}"/>
