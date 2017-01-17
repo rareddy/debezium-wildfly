@@ -1,11 +1,5 @@
 connect
 
-/extension=org.wildfly.extension.clustering.singleton:add(module=org.wildfly.extension.clustering.singleton)
-/subsystem=singleton:add
-/subsystem=singleton/singleton-policy=debezium:add(cache-container=server)
-/subsystem=singleton/singleton-policy=debezium/election-policy=simple:add(position=-1)
-
-
 /extension=io.debezium.subsystem:add(module=io.debezium.subsytem)
 /subsystem=debezium:add()
 

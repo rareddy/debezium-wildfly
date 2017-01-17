@@ -88,6 +88,11 @@
                 <artifactId>debezium-connector-mysql</artifactId>
                 <version>${version.debezium}</version>
             </dependency>
+            <dependency>
+                <groupId>io.debezium</groupId>
+                <artifactId>debezium-event-api</artifactId>
+                <version>${version.debezium}</version>
+            </dependency>
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>wildfly-subsystem</artifactId>

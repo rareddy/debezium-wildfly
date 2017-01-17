@@ -17,7 +17,6 @@ class DebeziumRemove extends AbstractRemoveStepHandler {
     protected void performRuntime(OperationContext context,
             final ModelNode operation, final ModelNode model)
             throws OperationFailedException {
-        
-        //context.removeService(TeiidServiceNames.PREPAREDPLAN_CACHE_FACTORY);
+        context.removeService(ServiceNames.THREAD_POOL_SERVICE);
     }
 }

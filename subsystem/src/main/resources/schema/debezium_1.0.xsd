@@ -23,7 +23,7 @@
                 </xs:complexType>
             </xs:element>
 
-            <xs:element name="connectors" type="connectorsType" maxOccurs="1" minOccurs="0" />
+            <xs:element name="event-stream" type="eventStreamType" minOccurs="0" maxOccurs="unbounded"/>
 
         </xs:sequence>
     </xs:complexType>
@@ -33,10 +33,12 @@
         <xs:attribute name="value" type="xs:string" use="required" />
     </xs:complexType>
 
-    <xs:complexType name="connectorsType">
+    <xs:complexType name="eventStreamType">
         <xs:sequence>
-            <xs:element name="connector" type="connectorType" maxOccurs="unbounded" minOccurs="0" />
+            <xs:element name="configuration" type="configurationType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="connector" type="connectorType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required" />
     </xs:complexType>
 
     <xs:complexType name="connectorType">

@@ -13,15 +13,23 @@ import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 
 class Constants {
-    private static final String CONNECTOR_NAME = "name";
+    private static final String NAME = "name";
     private static final String CONNECTOR_MODULE= "module";
     private static final String CONNECTOR_SLOT= "slot";
     private static final String CONFIGURATION= "configuration";
     private static final String CONFIGURATION_PROPERTY = "config-property";
     
+    
+    public static SimpleAttributeDefinition EVENT_STREAM_NAME_ATTRIBUTE = new SimpleAttributeDefinitionBuilder(
+            NAME, ModelType.STRING)
+                    .setXmlName(NAME)
+                    .setAllowExpression(false)
+                    .setAllowNull(true)
+                    .build();
+    
     public static SimpleAttributeDefinition CONNECTOR_NAME_ATTRIBUTE = new SimpleAttributeDefinitionBuilder(
-            CONNECTOR_NAME, ModelType.STRING)
-                      .setXmlName(CONNECTOR_NAME)
+            NAME, ModelType.STRING)
+                    .setXmlName(NAME)
                     .setAllowExpression(false)
                     .setAllowNull(true)
                     .build();
@@ -40,7 +48,7 @@ class Constants {
                     .setAllowNull(true)
                     .build();
     
-    static final PropertiesAttributeDefinition CONNECTOR_CONFIGURATION = new PropertiesAttributeDefinition.Builder(
+    static final PropertiesAttributeDefinition ITEM_CONFIGURATION = new PropertiesAttributeDefinition.Builder(
             CONFIGURATION, true)
                 .setAllowExpression(true)
                 .build();

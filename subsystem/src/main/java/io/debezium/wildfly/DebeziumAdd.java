@@ -64,17 +64,9 @@ class DebeziumAdd extends AbstractAddStepHandler {
         }
         
         RelativePathService.addService(ServiceNames.PATH_SERVICE, "debezium", "jboss.server.data.dir", target); //$NON-NLS-1$ //$NON-NLS-2$        
-        try {
-            ThreadExecutorService executorService = new ThreadExecutorService(maxThreads);
-            ServiceBuilder<?> executorServiceBuilder = target.addService(ServiceNames.THREAD_POOL_SERVICE, executorService);
-            executorServiceBuilder.install();
-
-            SingletonPolicy policy = (SingletonPolicy) context.getServiceRegistry(true).getRequiredService(ServiceName.parse(SingletonPolicy.CAPABILITY_NAME)).awaitValue();            
-            EventsAggregatorService eventsService = new EventsAggregatorService();
-            ServiceBuilder<EventQueue> eventsBuilder = policy.createSingletonServiceBuilder(ServiceNames.EVENTS_SERVICE, eventsService).build(target);     
-            eventsBuilder.install();
-        } catch (InterruptedException e) {
-            throw new OperationFailedException(e);
-        } 
+        
+        ThreadExecutorService executorService = new ThreadExecutorService(maxThreads);
+        ServiceBuilder<?> executorServiceBuilder = target.addService(ServiceNames.THREAD_POOL_SERVICE, executorService);
+        executorServiceBuilder.install();
     }
 }

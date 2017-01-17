@@ -38,7 +38,7 @@ class SubsytemResourceDefinition extends SimpleResourceDefinition {
     
     @Override
     public void registerChildren(ManagementResourceRegistration resourceRegistration) {
-        resourceRegistration.registerSubModel(new ConnectorResourceDefinition());        
+        resourceRegistration.registerSubModel(new EventStreamResourceDefinition());        
     }
  
     public static class AttributeWrite extends AbstractWriteAttributeHandler<Void> {

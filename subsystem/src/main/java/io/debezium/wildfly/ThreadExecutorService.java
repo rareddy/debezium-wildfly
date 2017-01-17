@@ -5,7 +5,6 @@
  */
 package io.debezium.wildfly;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -14,7 +13,7 @@ import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 
-class ThreadExecutorService implements Service<Executor> {
+class ThreadExecutorService implements Service<ExecutorService> {
 
     private int threadCount;
     private ExecutorService threadExecutor;
@@ -24,7 +23,7 @@ class ThreadExecutorService implements Service<Executor> {
     }
     
     @Override
-    public Executor getValue() throws IllegalStateException,
+    public ExecutorService getValue() throws IllegalStateException,
             IllegalArgumentException {
         return this.threadExecutor;
     }

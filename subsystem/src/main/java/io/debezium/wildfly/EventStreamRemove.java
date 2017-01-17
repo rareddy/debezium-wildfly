@@ -16,8 +16,8 @@ import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceRegistry;
 
-class ConnectorRemove extends AbstractRemoveStepHandler {
-    public static ConnectorRemove INSTANCE = new ConnectorRemove();
+class EventStreamRemove extends AbstractRemoveStepHandler {
+    public static EventStreamRemove INSTANCE = new EventStreamRemove();
     
     @Override
     protected void performRuntime(OperationContext context,
@@ -27,11 +27,10 @@ class ConnectorRemove extends AbstractRemoveStepHandler {
         final ModelNode address = operation.require(OP_ADDR);
         final PathAddress pathAddress = PathAddress.pathAddress(address);
 
-        final String connectorName = pathAddress.getLastElement().getValue();
-        final String eventStreamName = pathAddress.getElement(2).getValue();
+        String name = pathAddress.getLastElement().getValue();
 
         final ServiceRegistry registry = context.getServiceRegistry(true);
-        final ServiceName serviceName = ServiceNames.connectorServiceName(eventStreamName, connectorName);
+        final ServiceName serviceName = ServiceNames.eventStreamServiceName(name);
         final ServiceController<?> controller = registry.getService(serviceName);
         if (controller != null) {
             context.removeService(serviceName);

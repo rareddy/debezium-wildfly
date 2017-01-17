@@ -17,7 +17,7 @@ enum Element {
     // Connector
     ASYNC_THREAD_POOL_ELEMENT("async-thread-pool", "async-thread-pool"),
     MAX_THREAD_COUNT_ATTRIBUTE("async-thread-pool-max-thread-count", "max-thread-count"),
-    CONNECTORS("connectors", "connectors"), 
+    EVENT_STREAM("event-stream", "event-stream"), 
     CONNECTOR("connector", "connector"), 
     NAME("name", "name"), 
     MODULE("module", "module"), 

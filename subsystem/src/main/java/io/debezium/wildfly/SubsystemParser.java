@@ -46,37 +46,54 @@ class SubsystemParser implements XMLStreamConstants, XMLElementReader<List<Model
             writer.writeEndElement();
         }
         
-        boolean hasChildren = node.hasDefined(Element.CONNECTOR.getLocalName())
-                && node.get(Element.CONNECTOR.getLocalName()).asPropertyList().size() > 0;
-        
-        if (hasChildren) {
-            writer.writeStartElement(Element.CONNECTORS.getLocalName());
-            ModelNode connectors = node.get(Element.CONNECTOR.getLocalName());
-            for (String name : connectors.keys()) {                    
-                final ModelNode connector = connectors.get(name);
-                writer.writeStartElement(Element.CONNECTOR.getLocalName());
-                writeConnector(writer, connector, name);
-                writer.writeEndElement();
-            }            
-            writer.writeEndElement();
+        ModelNode eventStreams = node.get(Element.EVENT_STREAM.getLocalName());
+        if (eventStreams != null && eventStreams.isDefined()) {
+            for (String key : eventStreams.keys()) {                    
+                final ModelNode es = eventStreams.get(key);
+                writeEventStream(writer, es, key);
+            }
         }
         writer.writeEndElement(); // End of subsystem element
     }
-        
-    private void writeConnector(XMLExtendedStreamWriter writer, ModelNode node, String name)
+
+    private void writeEventStream(XMLExtendedStreamWriter writer, ModelNode node, String name)
             throws XMLStreamException {
-        writer.writeAttribute(CONNECTOR_NAME_ATTRIBUTE.getXmlName(), name);
-        CONNECTOR_MODULE_ATTRIBUTE.marshallAsAttribute(node, false, writer);
-        CONNECTOR_SLOT_ATTRIBUTE.marshallAsAttribute(node, false, writer);
+        writer.writeStartElement(Element.EVENT_STREAM.getLocalName());
+        writer.writeAttribute(EVENT_STREAM_NAME_ATTRIBUTE.getXmlName(), name);
         
-        if (node.hasDefined(CONNECTOR_CONFIGURATION.getName())) {
-            writer.writeStartElement(CONNECTOR_CONFIGURATION.getName());
-            for (Property property : node.get(CONNECTOR_CONFIGURATION.getName()).asPropertyList()) {
+        if (node.hasDefined(ITEM_CONFIGURATION.getName())) {
+            writer.writeStartElement(ITEM_CONFIGURATION.getName());
+            for (Property property : node.get(ITEM_CONFIGURATION.getName()).asPropertyList()) {
                 writeProperty(writer, property.getName(), property.getValue().asString(),
                         CONFIG_PROPERTY_VALUE.getXmlName());
             }
             writer.writeEndElement();
-        }        
+        }
+        ModelNode connectors = node.get(Element.CONNECTOR.getLocalName());
+        for (String key : connectors.keys()) {                    
+            final ModelNode connector = connectors.get(key);
+            writeConnector(writer, connector, key);
+        }         
+        writer.writeEndElement();
+    }
+    
+    
+    private void writeConnector(XMLExtendedStreamWriter writer, ModelNode node, String name)
+            throws XMLStreamException {
+        writer.writeStartElement(Element.CONNECTOR.getLocalName());
+        writer.writeAttribute(CONNECTOR_NAME_ATTRIBUTE.getXmlName(), name);
+        CONNECTOR_MODULE_ATTRIBUTE.marshallAsAttribute(node, false, writer);
+        CONNECTOR_SLOT_ATTRIBUTE.marshallAsAttribute(node, false, writer);
+        
+        if (node.hasDefined(ITEM_CONFIGURATION.getName())) {
+            writer.writeStartElement(ITEM_CONFIGURATION.getName());
+            for (Property property : node.get(ITEM_CONFIGURATION.getName()).asPropertyList()) {
+                writeProperty(writer, property.getName(), property.getValue().asString(),
+                        CONFIG_PROPERTY_VALUE.getXmlName());
+            }
+            writer.writeEndElement();
+        }
+        writer.writeEndElement();
     }
         
     private void writeProperty(XMLExtendedStreamWriter writer, String name, String value, String localName)
@@ -107,8 +124,8 @@ class SubsystemParser implements XMLStreamConstants, XMLElementReader<List<Model
                 case DEBEZIUM_1_0: {
                     Element element = Element.forName(reader.getLocalName());
                     switch (element) {
-                    case CONNECTORS:
-                        parseConnectors(reader, address.clone(), list);
+                    case EVENT_STREAM:
+                        parseEventStream(reader, address.clone(), list);
                         break;
                     case ASYNC_THREAD_POOL_ELEMENT:
                         parseAsyncThreadConfiguration(reader, bootServices);
@@ -145,10 +162,39 @@ class SubsystemParser implements XMLStreamConstants, XMLElementReader<List<Model
         return node;        
     }    
 
-    private void parseConnectors(final XMLExtendedStreamReader reader, ModelNode address, final List<ModelNode> list)
+    private void parseEventStream(final XMLExtendedStreamReader reader, ModelNode parentAddress, final List<ModelNode> list)
             throws XMLStreamException {
-         
-        requireNoAttributes(reader);       
+
+        String eventStreamName = null;
+        if (reader.getAttributeCount() > 0) {
+            for(int i=0; i<reader.getAttributeCount(); i++) {
+                String attrName = reader.getAttributeLocalName(i);
+                String attrValue = reader.getAttributeValue(i);
+                Element element = Element.forName(attrName);
+                switch(element) {
+                case NAME:
+                    eventStreamName = attrValue;
+                    break;
+                default: 
+                    throw ParseUtils.unexpectedAttribute(reader, i);
+                }               
+            }
+        }
+        
+        // add event stream
+        ModelNode address = parentAddress.clone();
+        address.add(Element.EVENT_STREAM.getLocalName(), eventStreamName);
+        address.protect();
+        ModelNode eventStreamNode = new ModelNode();
+        eventStreamNode.get(OP).set(ADD);
+        eventStreamNode.get(OP_ADDR).set(address);
+        
+        if (eventStreamName != null) {
+            list.add(eventStreamNode);  
+        }
+        else {
+            throw new XMLStreamException();
+        }         
         
         while (reader.hasNext() && (reader.nextTag() != XMLStreamConstants.END_ELEMENT)) {
             Element element = Element.forName(reader.getLocalName());
@@ -156,14 +202,17 @@ class SubsystemParser implements XMLStreamConstants, XMLElementReader<List<Model
                 case CONNECTOR:
                     parseConnector(reader, address, list);
                     break;
+                case CONFIGURATION:
+                    parseConfigurationProperties("config-property", reader, eventStreamNode);
+                    break;
                 default: 
                     throw ParseUtils.unexpectedElement(reader);
             }
         }
     }
     
-    private void parseConnector(XMLExtendedStreamReader reader, ModelNode parentAddress, final List<ModelNode> list)
-            throws XMLStreamException {
+    private void parseConnector(XMLExtendedStreamReader reader, ModelNode parentAddress,
+            final List<ModelNode> list) throws XMLStreamException {
         
         ModelNode connectorNode = new ModelNode();
         String name = null;
@@ -224,7 +273,7 @@ class SubsystemParser implements XMLStreamConstants, XMLElementReader<List<Model
             final Element element = Element.forName(reader.getLocalName());
             if (childElementName.equals(element.getLocalName())) {
                 final String[] array = ParseUtils.requireAttributes(reader, org.jboss.as.controller.parsing.Attribute.NAME.getLocalName(), org.jboss.as.controller.parsing.Attribute.VALUE.getLocalName());
-                CONNECTOR_CONFIGURATION.parseAndAddParameterElement(array[0], array[1], node, reader);
+                ITEM_CONFIGURATION.parseAndAddParameterElement(array[0], array[1], node, reader);
             } else {
                 throw ParseUtils.unexpectedElement(reader);
             }

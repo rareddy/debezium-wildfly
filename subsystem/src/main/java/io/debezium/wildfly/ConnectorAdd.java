@@ -10,7 +10,6 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 import org.jboss.as.controller.*;
 import org.jboss.dmr.ModelNode;
@@ -20,10 +19,9 @@ import org.jboss.modules.ModuleLoadException;
 import org.jboss.modules.ModuleLoader;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
-import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceTarget;
-import org.wildfly.clustering.singleton.SingletonPolicy;
 
+import io.debezium.embedded.ConnectorEngine;
 import io.debezium.embedded.EmbeddedEngine;
 
 class ConnectorAdd extends AbstractAddStepHandler {
@@ -32,7 +30,7 @@ class ConnectorAdd extends AbstractAddStepHandler {
     static AttributeDefinition[] ATTRIBUTES = {
             Constants.CONNECTOR_MODULE_ATTRIBUTE,
             Constants.CONNECTOR_SLOT_ATTRIBUTE,
-            Constants.CONNECTOR_CONFIGURATION
+            Constants.ITEM_CONFIGURATION
     };    
     
     @Override
@@ -51,6 +49,7 @@ class ConnectorAdd extends AbstractAddStepHandler {
         final PathAddress pathAddress = PathAddress.pathAddress(address);
 
         final String connectorName = pathAddress.getLastElement().getValue();
+        final String eventStreamName = pathAddress.getElement(2).getValue();
         
         String moduleName = null;
         if (isDefined(CONNECTOR_MODULE_ATTRIBUTE, operation, context)) {
@@ -63,8 +62,8 @@ class ConnectorAdd extends AbstractAddStepHandler {
         }
         
         Map<String, String> properties = null;
-        if (isDefined(CONNECTOR_CONFIGURATION, operation, context)) {
-            properties = asProperties(CONNECTOR_CONFIGURATION, operation, context);
+        if (isDefined(ITEM_CONFIGURATION, operation, context)) {
+            properties = asProperties(ITEM_CONFIGURATION, operation, context);
         }          
         
         final ServiceTarget target = context.getServiceTarget();
@@ -98,16 +97,10 @@ class ConnectorAdd extends AbstractAddStepHandler {
             }
         }
         
-        try {
-            SingletonPolicy policy = (SingletonPolicy) context.getServiceRegistry(true).getRequiredService(ServiceName.parse(SingletonPolicy.CAPABILITY_NAME)).awaitValue();
-            ConnectorService service = new ConnectorService(connectorName, connectorClass, classloader, properties);
-            ServiceBuilder<EventQueue> builder = policy.createSingletonServiceBuilder(ServiceNames.connectorServiceName(connectorName), service).build(target);     
-            builder.addDependency(ServiceNames.THREAD_POOL_SERVICE, Executor.class, service.executorInjector);
-            builder.addDependency(ServiceNames.EVENTS_SERVICE, EventQueue.class, service.eventsInjector);
-            builder.addDependency(ServiceNames.PATH_SERVICE, String.class, service.pathInjector);
-            builder.setInitialMode(ServiceController.Mode.ACTIVE).install();
-        } catch (InterruptedException e) {
-            throw new OperationFailedException(e);
-        }          
+        ConnectorService service = new ConnectorService(connectorName, connectorClass, classloader, properties);
+        ServiceBuilder<Void> builder = target.addService(ServiceNames.connectorServiceName(eventStreamName, connectorName), service);
+        builder.addDependency(ServiceNames.eventStreamServiceName(eventStreamName), ConnectorEngine.class, service.connectorEngineInjector);
+        builder.addDependency(ServiceNames.PATH_SERVICE, String.class, service.pathInjector);
+        builder.setInitialMode(ServiceController.Mode.ACTIVE).install();
     }    
 }
