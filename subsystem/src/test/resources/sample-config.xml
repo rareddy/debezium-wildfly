@@ -1,6 +1,6 @@
 <subsystem xmlns="urn:jboss:domain:debezium:1.0">
     <async-thread-pool max-thread-count="1" />
-    <event-stream name="teiid">
+    <event-stream name="teiid" jndi-name="java:/es1">
         <configuration>
             <config-property name="es-key1" value="es-value1" />
             <config-property name="es-key2" value="es-value2" />
@@ -13,7 +13,7 @@
             </configuration>
         </connector>
     </event-stream>
-    <event-stream name="another">
+    <event-stream name="another" jndi-name="java:/es2">
         <configuration>
             <config-property name="es-key1" value="es-value1" />
             <config-property name="es-key2" value="es-value2" />

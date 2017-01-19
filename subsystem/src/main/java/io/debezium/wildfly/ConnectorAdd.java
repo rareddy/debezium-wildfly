@@ -49,7 +49,7 @@ class ConnectorAdd extends AbstractAddStepHandler {
         final PathAddress pathAddress = PathAddress.pathAddress(address);
 
         final String connectorName = pathAddress.getLastElement().getValue();
-        final String eventStreamName = pathAddress.getElement(2).getValue();
+        final String eventStreamName = pathAddress.getElement(1).getValue();
         
         String moduleName = null;
         if (isDefined(CONNECTOR_MODULE_ATTRIBUTE, operation, context)) {
@@ -97,7 +97,7 @@ class ConnectorAdd extends AbstractAddStepHandler {
             }
         }
         
-        ConnectorService service = new ConnectorService(connectorName, connectorClass, classloader, properties);
+        ConnectorService service = new ConnectorService(eventStreamName, connectorName, connectorClass, classloader, properties);
         ServiceBuilder<Void> builder = target.addService(ServiceNames.connectorServiceName(eventStreamName, connectorName), service);
         builder.addDependency(ServiceNames.eventStreamServiceName(eventStreamName), ConnectorEngine.class, service.connectorEngineInjector);
         builder.addDependency(ServiceNames.PATH_SERVICE, String.class, service.pathInjector);

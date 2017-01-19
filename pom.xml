@@ -10,7 +10,7 @@
     <groupId>io.debezium</groupId>
     <artifactId>debezium-wildfly-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
     <name>debezium-wildfly</name>
     <url>http://debezium.io</url>
     <description>Debezium Wildfly integration</description>
@@ -93,12 +93,12 @@
                 <artifactId>debezium-event-api</artifactId>
                 <version>${version.debezium}</version>
             </dependency>
-        <dependency>
-            <groupId>io.debezium</groupId>
-            <artifactId>wildfly-subsystem</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-             
+            <dependency>
+                <groupId>io.debezium</groupId>
+                <artifactId>wildfly-subsystem</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
     <modules>

@@ -45,8 +45,10 @@ public class EventStreamService implements Service<ConnectorEngine> {
     @Override
     public void start(StartContext context) throws StartException {
         Configuration.Builder b = Configuration.create();
-        for (String key : this.configuration.keySet()) {
-            b.with(key, this.configuration.get(key));
+        if (this.configuration != null) {
+            for (String key : this.configuration.keySet()) {
+                b.with(key, this.configuration.get(key));
+            }
         }
 
         // these properties must be generic to the all the connectors.

@@ -28,7 +28,7 @@ class ConnectorRemove extends AbstractRemoveStepHandler {
         final PathAddress pathAddress = PathAddress.pathAddress(address);
 
         final String connectorName = pathAddress.getLastElement().getValue();
-        final String eventStreamName = pathAddress.getElement(2).getValue();
+        final String eventStreamName = pathAddress.getElement(1).getValue();
 
         final ServiceRegistry registry = context.getServiceRegistry(true);
         final ServiceName serviceName = ServiceNames.connectorServiceName(eventStreamName, connectorName);

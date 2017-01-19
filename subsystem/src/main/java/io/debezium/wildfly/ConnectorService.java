@@ -7,7 +7,6 @@
 package io.debezium.wildfly;
 
 import java.util.Map;
-import java.util.Properties;
 
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
@@ -26,13 +25,15 @@ class ConnectorService implements Service<Void> {
     protected final InjectedValue<ConnectorEngine> connectorEngineInjector = new InjectedValue<ConnectorEngine>();
     protected InjectedValue<String> pathInjector = new InjectedValue<String>();
     
-    private final String name;
+    private final String connectorName;
+    private final String eventStreamName;
     private final String connectorClass;
     private final ClassLoader classLoader;
     private final Map<String, String> properties;
     
-    ConnectorService(String name, String connectorClass, ClassLoader classLoader, Map<String, String> properties){
-        this.name = name;
+    ConnectorService(String eventStreamName, String connectorName, String connectorClass, ClassLoader classLoader, Map<String, String> properties){
+        this.eventStreamName = eventStreamName;
+        this.connectorName = connectorName;
         this.connectorClass = connectorClass;
         this.classLoader = classLoader;
         this.properties = properties;
@@ -42,15 +43,16 @@ class ConnectorService implements Service<Void> {
     public void start(StartContext context) throws StartException {
         ConnectorEngine engine = connectorEngineInjector.getValue();
         
-        Configuration.Builder b = Configuration.create();
-        b.with(EmbeddedEngine.CONNECTOR_CLASS.name(), this.connectorClass);
+        Configuration.Builder b = Configuration.create();                
         resolve(this.properties, b);
+        b.with(ConnectorEngine.CONNECTOR_NAME, this.eventStreamName+"."+this.connectorName);
+        b.with(ConnectorEngine.CONNECTOR_CLASS.name(), this.connectorClass);
         
         try {
             if (engine.deployConnector(b.build(), new ConnectorEngine.ConnectorCallback() {}, this.classLoader)) {
-                logger.debug("Debezium {} Connector deployed and started", this.name);
+                logger.debug("Debezium {} Connector deployed and started", this.connectorName);
             } else {
-                logger.debug("Debezium {} Connector failed to deploy", this.name);
+                logger.debug("Debezium {} Connector failed to deploy", this.connectorName);
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InterruptedException e) {
             throw new StartException(e);
@@ -60,15 +62,14 @@ class ConnectorService implements Service<Void> {
     @Override
     public void stop(StopContext context) {
         ConnectorEngine engine = connectorEngineInjector.getValue();
-        engine.undeployConnector(name, null);
-        logger.debug("Debezium {} Connector stopped and undeployed", this.name);
+        engine.undeployConnector(connectorName, null);
+        logger.debug("Debezium {} Connector stopped and undeployed", this.connectorName);
     }
 
     @Override
     public Void getValue() throws IllegalStateException, IllegalArgumentException {
         return null;
     }
-    
         
     void resolve(Map<String, String> initial, Configuration.Builder config) {
         if (initial != null && !initial.isEmpty()) {
@@ -77,7 +78,8 @@ class ConnectorService implements Service<Void> {
                 String value = initial.get(key);
                 value = value.replace("${jboss.node.name}", System.getProperty("jboss.node.name"));
                 value = value.replace("${jboss.server.data.dir}", pathInjector.getValue());
-                value = value.replace("${connector-name}", this.name);
+                value = value.replace("${connector-name}", this.connectorName);
+                value = value.replace("${event-stream-name}", this.eventStreamName);
                 
                 int idx = value.indexOf("${");
                 while (idx != -1) {

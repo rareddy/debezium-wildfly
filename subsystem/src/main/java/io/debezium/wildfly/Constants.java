@@ -73,7 +73,14 @@ class Constants {
             .setAllowNull(true)
             .setAllowExpression(false)
             .setDefaultValue(new ModelNode(10))
-            .build();    
+            .build();
+    
+    public static SimpleAttributeDefinition EVENT_STREAM_JNDI_NAME_ATTRIBUTE = new SimpleAttributeDefinitionBuilder(
+            Element.EVENT_STREAM_JNDI_NAME.getLocalName(), ModelType.STRING)
+            .setXmlName(Element.EVENT_STREAM_JNDI_NAME.getXmlName())
+            .setAllowNull(true)
+            .setAllowExpression(false)
+            .build();     
     
     static boolean isDefined(final AttributeDefinition attr, final ModelNode model,
             final OperationContext context) throws OperationFailedException {

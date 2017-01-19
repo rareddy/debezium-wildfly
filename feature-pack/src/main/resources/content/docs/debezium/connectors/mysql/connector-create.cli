@@ -1,4 +1,4 @@
 batch
-/subsystem=debezium/event-stream=teiid:add(configuration=["max.queue.size"=>16])
+/subsystem=debezium/event-stream=teiid:add(jndi-name=java:/teiid-dbz)
 /subsystem=debezium/event-stream=teiid/connector=mysql:add(module=io.debezium.connectors.mysql, configuration=["database.hostname" => "localhost","database.port" => 3306, "database.user"=>"debezium","database.password" => "dbz"])
 run-batch

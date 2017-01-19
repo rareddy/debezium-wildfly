@@ -39,6 +39,7 @@
             <xs:element name="connector" type="connectorType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="jndi-name" type="xs:string" use="required" />
     </xs:complexType>
 
     <xs:complexType name="connectorType">

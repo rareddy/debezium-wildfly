@@ -11,10 +11,10 @@
 
     <dependencies>
         <module name="javax.api" />
-        <module name="javax.resource.api"/>         
         <module name="sun.jdk" optional="true"/>           
         <module name="javax.xml.bind.api"/>
         <module name="org.slf4j"/>
+        <module name="io.debezium.event-api"/>
         <module name="org.apache.kafka.connect-api"/>
         <module name="org.apache.kafka.kafka-clients"/>
         <module name="org.apache.kafka.connect-runtime"/>

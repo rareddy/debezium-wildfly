@@ -60,6 +60,7 @@ class SubsystemParser implements XMLStreamConstants, XMLElementReader<List<Model
             throws XMLStreamException {
         writer.writeStartElement(Element.EVENT_STREAM.getLocalName());
         writer.writeAttribute(EVENT_STREAM_NAME_ATTRIBUTE.getXmlName(), name);
+        EVENT_STREAM_JNDI_NAME_ATTRIBUTE.marshallAsAttribute(node, false, writer);
         
         if (node.hasDefined(ITEM_CONFIGURATION.getName())) {
             writer.writeStartElement(ITEM_CONFIGURATION.getName());
@@ -70,10 +71,14 @@ class SubsystemParser implements XMLStreamConstants, XMLElementReader<List<Model
             writer.writeEndElement();
         }
         ModelNode connectors = node.get(Element.CONNECTOR.getLocalName());
-        for (String key : connectors.keys()) {                    
-            final ModelNode connector = connectors.get(key);
-            writeConnector(writer, connector, key);
-        }         
+        if (connectors != null && connectors.isDefined()) {
+            for (String key : connectors.keys()) {                    
+                final ModelNode connector = connectors.get(key);
+                if (connector != null && connector.isDefined()) {
+                    writeConnector(writer, connector, key);
+                }
+            }         
+        }
         writer.writeEndElement();
     }
     
@@ -166,6 +171,7 @@ class SubsystemParser implements XMLStreamConstants, XMLElementReader<List<Model
             throws XMLStreamException {
 
         String eventStreamName = null;
+        String jndiName = null;
         if (reader.getAttributeCount() > 0) {
             for(int i=0; i<reader.getAttributeCount(); i++) {
                 String attrName = reader.getAttributeLocalName(i);
@@ -174,6 +180,9 @@ class SubsystemParser implements XMLStreamConstants, XMLElementReader<List<Model
                 switch(element) {
                 case NAME:
                     eventStreamName = attrValue;
+                    break;
+                case EVENT_STREAM_JNDI_NAME:
+                    jndiName = attrValue;
                     break;
                 default: 
                     throw ParseUtils.unexpectedAttribute(reader, i);
@@ -188,6 +197,9 @@ class SubsystemParser implements XMLStreamConstants, XMLElementReader<List<Model
         ModelNode eventStreamNode = new ModelNode();
         eventStreamNode.get(OP).set(ADD);
         eventStreamNode.get(OP_ADDR).set(address);
+        if (jndiName != null) {
+            eventStreamNode.get(Element.EVENT_STREAM_JNDI_NAME.getLocalName()).set(jndiName);
+        }
         
         if (eventStreamName != null) {
             list.add(eventStreamNode);  
