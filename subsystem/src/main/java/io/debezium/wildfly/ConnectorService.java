@@ -49,7 +49,7 @@ class ConnectorService implements Service<Void> {
         b.with(ConnectorEngine.CONNECTOR_CLASS.name(), this.connectorClass);
         
         try {
-            if (engine.deployConnector(b.build(), new ConnectorEngine.ConnectorCallback() {}, this.classLoader)) {
+            if (engine.addConnector(b.build(), new ConnectorEngine.ConnectorCallback() {}, this.classLoader)) {
                 logger.debug("Debezium {} Connector deployed and started", this.connectorName);
             } else {
                 logger.debug("Debezium {} Connector failed to deploy", this.connectorName);
@@ -62,7 +62,7 @@ class ConnectorService implements Service<Void> {
     @Override
     public void stop(StopContext context) {
         ConnectorEngine engine = connectorEngineInjector.getValue();
-        engine.undeployConnector(connectorName, null);
+        engine.removeConnector(connectorName, null);
         logger.debug("Debezium {} Connector stopped and undeployed", this.connectorName);
     }
 
